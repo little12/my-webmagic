@@ -3,6 +3,7 @@ package crawl;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
+import us.codecraft.webmagic.pipeline.FilePipeline;
 import us.codecraft.webmagic.processor.PageProcessor;
 
 public class JobProcessor implements PageProcessor {
@@ -14,6 +15,13 @@ public class JobProcessor implements PageProcessor {
 
         //Xpath
         page.putField("div2",page.getHtml().xpath("//div[@id=shortcut]/div/ul/li/a"));
+
+        //正则表达式
+        page.putField("div3",page.getHtml().css("div.w ul.fr a").regex(".*好.*").all());
+
+        //获取链接
+        page.addTargetRequests(page.getHtml().css("div#shortcut").links().all());
+        page.putField("url", page.getHtml().css("url.fr a").all());
     }
 
     private Site site=Site.me();
@@ -25,6 +33,8 @@ public class JobProcessor implements PageProcessor {
     public static void main(String[] args){
         Spider.create(new JobProcessor())
                 .addUrl("https://www.jd.com/moreSubject.aspx") //设置爬虫的页面
+                .addPipeline(new FilePipeline("C:\\Users\\LISHUANG\\Desktop\\result"))//输出到文件
+                .thread(5)//多线程
                 .run();
     }
 }
